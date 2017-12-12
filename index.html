@@ -1,1 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>Train Scheduler</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/4.8.0/firebase.js"></script>
+    
+  <script src= "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/locale/af.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <style>
+        .jumbotron {
+            background: #CD853F;
+            color: whitesmoke;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>Anytime is Train Time</h1>
+        </div>
+
+        <div id="wrapper">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Current Train Schedule</div>
+                <div class="panel-body">
+
+                    <table class="table table-hover" id="employees">
+                        <thead>
+                            <tr>
+                                <th>Train Name</th>
+                                <th>Destination</th>
+                                <th>Frequency (min)</th>
+                                <th>Next Arrival</th>
+                                <th>Minutes Away</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="wrapper">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Current Train Schedule</div>
+                <div class="panel-body">
+
+                    <form>
+                        <div class="form-group">
+                            <label class="col-form-label" for="formGroupExampleInput">Train Name</label>
+                            <input type="text" class="form-control" id="train-name" placeholder="Your Name">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="formGroupExampleInput2">Destination</label>
+                            <input type="text" class="form-control" id="destination-name" placeholder="Your Role">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="formGroupExampleInput">Frequency (min)</label>
+                            <input type="text" class="form-control" id="frequency" placeholder="00">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="formGroupExampleInput2">Next Arrival</label>
+                            <input type="text" class="form-control" id="next-arrival" placeholder="00.00">
+                        </div>
+                    </form>
+                    <a id="add-user" class="btn btn-primary" href="#" role="button">Submit</a>
+
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+
+
+    </div>
+
+    <script>
+
+        // Initialize Firebase
+       
+
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCsau65ZVfUF9qvw1YVchRfFLv_d9HLwU0",
+    authDomain: "train-dddb8.firebaseapp.com",
+    databaseURL: "https://train-dddb8.firebaseio.com",
+    projectId: "train-dddb8",
+    storageBucket: "train-dddb8.appspot.com",
+    messagingSenderId: "810349964389"
+  };
+  firebase.initializeApp(config);
+
+        var database = firebase.database();
+
+        // Initial variables
+        var trainName = "";
+        var destination = "";
+        var frequency = "";
+        var nextArrival = "";
+
+        // Capture Button Click
+        $("#add-user").on("click", function (event) {
+            event.preventDefault();
+
+            // Grabbed values from text-boxes
+            trainName = $("#train-name").val().trim();
+            destination = $("#destination-name").val().trim();
+            frequency = $("#frequency").val().trim();
+            nextArrival = $("#next-arrival").val().trim();
+
+            // Code for "Setting values in the database"
+            database.ref().push({
+                trainName: trainName,
+                destination: destination,
+                frequency: frequency,
+                nextArrival: nextArrival,
+                minutesAway: firebase.database.ServerValue.TIMESTAMP
+            });
+        });
+        // Add them to the HTML in our table
+
+        database.ref().on("child_added", function (childSnapshot) {
+
+            // Log everything that's coming out of snapshot
+            console.log(childSnapshot.val().trainName);
+            console.log(childSnapshot.val().destination);
+            console.log(childSnapshot.val().frequency);
+            console.log(childSnapshot.val().nextArrival);
+
+            // Change the HTML to reflect
+            var newTr = $("<tr>")
+            newTr.append("<td>" + childSnapshot.val().trainName + "</td>");
+            newTr.append("<td>" + childSnapshot.val().destination + "</td>");
+            newTr.append("<td>" + childSnapshot.val().frequency + "</td>");
+            newTr.append("<td>" + childSnapshot.val().nextArrival + "</td>");
+            newTr.append("<td>" + childSnapshot.val().minutesAway + "</td>");
+            newTr.append("<td>" + 0 + "</td>");
+            $("tbody").append(newTr);
+
+
+
+            // Handle the errors
+        }, function (errorObject) {
+            console.log("Errors handled: " + errorObject.code);
+        });
+
+
+
+
+    </script>
+
+</body>
+
+</html>
